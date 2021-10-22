@@ -1,15 +1,20 @@
 import torch
+from utils import convert_latent_to_model_z, convert_model_z_to_latent
 
 class Style:
 
     def __init__(self, qpm_primo, latent, name=''):
         self.qpm_primo = qpm_primo
-        self.latent = latent
-        self.name=name
+        self.name = name
+
+        if type(latent[0]) == torch.Tensor:
+            self.latent = convert_model_z_to_latent(latent)
+        else:
+            self.latent = latent
 
     def to_dict(self):
         return {
-            'z': [torch.tensor([[self.latent]])],
+            'z': convert_latent_to_model_z(self.latent),
             'key': self.name,
             'qpm': self.qpm_primo
         }
@@ -33,25 +38,25 @@ class Style:
 anger = Style(
     name='Anger',
     qpm_primo=-0.0881854666908756,
-    latent=[ 0.5749, -0.1427, -0.1627,  0.1102, -0.0582,  0.5274, -0.1459,
-           0.0134, -0.1858,  0.2948, -0.0082,  0.0314,  0.2051,  0.3028,
-           0.0732,  0.0530]
+    latent=[ -0.8611,  0.1509,  0.1954, -0.1998, -0.0693, -0.3300, -0.1151,
+           0.4470, -0.0036,  0.2544,  0.1300,  0.3184,  0.3081, -0.0575,
+           0.1970,  0.0145]
 )
 
 sad = Style(
     name='Sad',
     qpm_primo=-1.3659845383895572,
-    latent=[-0.0133, -0.0521, -0.1571, -0.0232,  0.0296, -0.2825,  0.1783,
-           0.7856, -0.0367, -0.6838, -0.0488, -0.2774, -0.1716, -0.0218,
-           0.2626,  0.8341]
+    latent=[0.3559,  0.0670, -0.0238,  0.4218, -0.0883, -0.1958, -0.0273,
+           0.1367, -0.0793,  0.0682,  0.1752,  0.2429,  0.0364, -0.3415,
+           0.2484, -0.1466]
 )
 
 relax = Style(
     name='Relax',
     qpm_primo=-0.7279451943405377,
-    latent=[-0.3656, -0.0048, -0.2384,  0.0565, -0.1240, -0.1579,  0.0561,
-          -0.5261, -0.0658,  0.4233, -0.0478, -0.0314, -0.5431, -0.2640,
-           0.3206, -0.1124]
+    latent=[-0.1730, -0.1018, -0.0196,  0.4134, -0.3197,  0.2387, -0.3057,
+          -0.2355,  0.2783, -0.1661, -0.6581,  0.4719,  0.0260, -0.3694,
+           0.5658,  0.3900]
 )
 
 
