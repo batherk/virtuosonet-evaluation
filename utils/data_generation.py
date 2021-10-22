@@ -5,7 +5,7 @@ from utils.conversion import convert_model_z_to_latent
 def generate_styles_df(
         model_type="isgn",
         path="test_pieces/emotionNet/Bach_Prelude_1/",
-        style_names=['Anger', 'Relax'],
+        style_names=['Anger', 'Relax', 'Sad', 'Enjoy', 'OR'],
         composer_name="Bach",
         data_file="training_data"
 ):
