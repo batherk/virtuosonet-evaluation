@@ -1,7 +1,8 @@
 import pandas as pd
+from utils.paths import get_root_folder
 
-def save_styles_df(df:pd.DataFrame, name='styles',path='./../data/'):
-    df.to_pickle(f"{path}{name}.pickle")
+def save_data(df:pd.DataFrame, name='styles'):
+    df.to_pickle(f"{get_root_folder()}/data/{name}.pickle")
 
-def load_styles_df(name='styles',path='./../data/'):
-    return pd.read_pickle(f"{path}{name}.pickle")
+def load_data(name='styles'):
+    return pd.read_pickle(f"{get_root_folder()}/data/{name}.pickle")

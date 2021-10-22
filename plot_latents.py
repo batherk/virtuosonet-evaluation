@@ -1,5 +1,5 @@
-from utils.data_handling import load_styles_df
+from utils.data_handling import load_data
 from utils.plot import plot_latents
 
-styles_df = load_styles_df(path='./data/', name='multiple_styles')
+styles_df = load_data(name='multiple_styles')
 plot_latents(styles_df)
