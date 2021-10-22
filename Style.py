@@ -1,5 +1,5 @@
 import torch
-from utils import convert_latent_to_model_z, convert_model_z_to_latent
+from utils.conversion import convert_latent_to_model_z, convert_model_z_to_latent
 
 class Style:
 
