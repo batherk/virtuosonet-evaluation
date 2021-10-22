@@ -24,3 +24,13 @@ def generate_styles_df(
         data.append([style_name, qpm_primo] + latent)
     column_names = ["style_name", "qpm"] + [f"l{i}" for i in range(latent_size)]
     return pd.DataFrame(data, columns=column_names)
+
+def generate_multiple_styles_df(
+        amount=10,
+        model_type="isgn",
+        path="test_pieces/emotionNet/Bach_Prelude_1/",
+        style_names=['Anger', 'Relax', 'Sad', 'Enjoy', 'OR'],
+        composer_name="Bach",
+        data_file="training_data"
+):
+    return generate_styles_df(style_names=style_names*amount, model_type=model_type, path=path, composer_name=composer_name, data_file=data_file)
