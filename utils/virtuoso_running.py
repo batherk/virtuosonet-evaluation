@@ -514,7 +514,7 @@ def encode_all_emotionNet_data(path_list, style_keywords, in_HIER=virtuoso_setti
                 emotion_mean_z.append(z_list[i][j])
             mean_perform_z = torch.mean(torch.stack(emotion_mean_z), 0, True)
             z_by_models.append(mean_perform_z)
-        if i is not 0:
+        if i != 0:
             emotion_qpm = []
             for qpm_change in qpm_list_by_subject:
                 emotion_qpm.append(qpm_change[i])
@@ -685,6 +685,23 @@ class TraningSample:
         self.index = index
         self.slice_indexes = None
 
+
+def load_training_data(file_name="training_data"):
+    print('Loading the training data...')
+    training_data_name = dpath() + "data/" + file_name + ".dat"
+
+    with open(training_data_name, "rb") as f:
+        u = pickle._Unpickler(f)
+        u.encoding = 'latin1'
+        # p = u.load()
+        # complete_xy = pickle.load(f)
+        complete_xy = u.load()
+
+    train_xy = complete_xy['train']
+    test_xy = complete_xy['valid']
+    print('number of train performances: ', len(train_xy), 'number of valid perf: ', len(test_xy))
+    print('training sample example', train_xy[0][0][0])
+    return train_xy, test_xy
 
 #
 # ### training
