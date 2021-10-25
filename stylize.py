@@ -1,6 +1,6 @@
 #%%
 
-from virtuosoNet import functions as vif
+from utils import virtuoso_handling as vh
 from Style import relax, sad
 
 
@@ -20,13 +20,13 @@ latent = mix.to_dict()
 
 #%% Load Model
 
-model = vif.load_model(MODEL_TYPE)
-trill_model = vif.load_model(TRILL_MODEL)
+model = vh.load_model(MODEL_TYPE)
+trill_model = vh.load_model(TRILL_MODEL)
 
 #%% Load means and stds from data file
 
-means, stds, bins, _, _, _, _ = vif.load_stat_file(DATA_FILE)
+means, stds, bins, _, _, _, _ = vh.load_stat_file(DATA_FILE)
 
 #%% Stylize Song
 
-vif.load_file_and_generate_performance(PATH, COMPOSER_NAME, latent, means, stds, bins, model, MODEL_TYPE, trill_model)
+vh.load_file_and_generate_performance(PATH, COMPOSER_NAME, latent, means, stds, bins, model, MODEL_TYPE, trill_model)

@@ -1,5 +1,5 @@
 import pandas as pd
-from virtuosoNet import functions as vif
+from utils import virtuoso_handling as vif
 from utils.conversion import convert_model_z_to_latent
 
 def generate_styles_df(
