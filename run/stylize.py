@@ -1,14 +1,14 @@
 #%%
 
 from utils import virtuoso_handling as vh
-from Style import relax, sad
+from classes.Style import relax, sad
 
 
 #%% Settings
 
 MODEL_TYPE = "isgn"
 TRILL_MODEL = 'trill_default'
-PATH = "test_pieces/emotionNet/Bach_Prelude_1/"
+PATH = "../virtuosoNet/test_pieces/emotionNet/Bach_Prelude_1/"
 COMPOSER_NAME = "Bach"
 DATA_FILE = "training_data"
 
