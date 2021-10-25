@@ -382,7 +382,7 @@ def load_file_and_generate_performance(
         output_features, note_locations
     )
     piece_name = path_name.split("/")
-    save_name = "test_result/" + piece_name[-2] + "_by_" + model_type + "_z" + str(z)
+    save_name = "results/" + piece_name[-2] + "_by_" + model_type + "_z" + str(z)
     if generate_png:
         perf_worm.plot_performance_worm(output_features, save_name + ".png")
     if generate_song:
