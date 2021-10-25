@@ -1,5 +1,8 @@
 import torch
+import os
+from utils.paths import get_root_folder
 
+FOLDER_PATH = os.path.join(get_root_folder(), 'virtuosoNet', '')
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 MODEL_TYPE = "isgn"
 HIER_TYPE = "han_ar_measure"
