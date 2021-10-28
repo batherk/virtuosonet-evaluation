@@ -5,6 +5,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from utils.matrix import get_dimensionality_reduction_matrix
+from utils.data_handling import save_data
+import pandas as pd
+
+SAVE_DATA = True
 
 styles = load_data('multiple_styles')
 anger = styles[styles['style_name'] =='Anger']
@@ -36,6 +40,16 @@ min_z, max_z = min(zs), max(zs)
 delta = 0.2
 yy, zz = np.meshgrid(np.arange(min_y, max_y, delta), np.arange(min_z, max_z, delta))
 xx = np.ones(yy.shape)*classifier.intercept_
+
+if SAVE_DATA:
+    classification_data = {
+        'x': xs,
+        'y': ys,
+        'z': zs,
+        'label': y
+    }
+    df = pd.DataFrame(classification_data)
+    save_data(df, 'latent_classification')
 
 anger_mean = [np.mean(values[:len(anger_x)]) for values in [xs, ys, zs]]
 sad_mean = [np.mean(values[len(anger_x):]) for values in [xs, ys, zs]]

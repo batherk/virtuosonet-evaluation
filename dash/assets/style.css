@@ -1,0 +1,10 @@
+html{
+    background-color:  rgb(17,17,17);
+    color:white;
+    font-family: "Helvetica Neue" "SansSerif";
+}
+
+#_dash-app-content{
+    height:100%;
+    width: 100%;
+}
