@@ -164,8 +164,9 @@ def copy_relayout_data(layout, relayout_data):
               Output('precision','style'),
               Output('recall','style'),
               Input('plane','value'),
-              State("graph", "relayoutData"))
-def change_plane_x(slider_value, relayout_data):
+              State('graph', 'relayoutData'),
+              State('graph','figure'))
+def change_plane_x(slider_value, relayout_data, prev_graph):
     plane=go.Surface(
             x=xx*slider_value,
             y=yy,
@@ -184,9 +185,10 @@ def change_plane_x(slider_value, relayout_data):
     accuracy_style = {'border-color':f"rgb(166,255,198,{evaluate_metric_quadratic(accuracy)})"}
     precision_style = {'border-color': f"rgb(166,255,198,{evaluate_metric_quadratic(precision)})"}
     recall_style = {'border-color': f"rgb(166,255,198,{evaluate_metric_quadratic(recall)})"}
+    data = prev_graph['data'][:2] + [plane]
     layout = graph_layout_default
     layout = copy_relayout_data(layout, relayout_data)
-    return go.Figure(data=[anger_samples, sad_samples,plane], layout=layout), accuracy_label, precision_label, recall_label, accuracy_style, precision_style, recall_style
+    return go.Figure(data=data, layout=layout), accuracy_label, precision_label, recall_label, accuracy_style, precision_style, recall_style
 
 if __name__ == '__main__':
     app.run_server(debug=True)
