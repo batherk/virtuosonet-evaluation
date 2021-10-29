@@ -69,13 +69,16 @@ graph_layout_default_settings = {
         'xaxis_title': 'Anger(-),Sad(+)-Dim',
         'yaxis_title': 'PCA 1',
         'zaxis_title': 'PCA 2',
+        'xaxis':{
+            'range': [min_x, max_x]
+        }
     },
     'legend':{
         'xanchor':'right'
     },
     'margin':{
         'autoexpand':False
-    }
+    },
 }
 
 app.layout = html.Div(
