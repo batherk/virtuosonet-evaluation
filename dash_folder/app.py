@@ -15,8 +15,8 @@ import pandas as pd
 app = dash.Dash(__name__, assets_folder=assets_folder)
 
 all = load_data('latent_classification')
-train = pd.DataFrame(all.iloc[:80].append(all.iloc[100:180]), index=[i for i in range(160)])
-test = pd.DataFrame(all.iloc[80:100].append(all.iloc[180:]), index=[i for i in range(40)])
+train = all.iloc[:140]
+test = all.iloc[:20]
 
 min_x = all['x'].min()
 max_x = all['x'].max()
@@ -206,11 +206,11 @@ def change_plane_x(slider_value, classification_type, data_type, relayout_data, 
     trigger = get_trigger()
 
     if data_type == 'train':
-        sample_df = pd.DataFrame(train)
+        sample_df = train
     elif data_type == 'test':
-        sample_df = pd.DataFrame(test)
+        sample_df = test
     else:
-        sample_df = pd.DataFrame(all)
+        sample_df = all
 
     predicted = np.where(sample_df['x'] < slider_value, 0, 1)
 
