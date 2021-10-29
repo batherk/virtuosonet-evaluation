@@ -8,6 +8,7 @@ import numpy as np
 from dash.dependencies import Input, Output, State
 from dash_folder.template import assets_folder, colors
 from sklearn.metrics import accuracy_score, precision_score, recall_score
+from utils.metric_evaluation import evaluate_metric_quadratic
 
 app = dash.Dash(__name__, assets_folder=assets_folder)
 
@@ -159,6 +160,9 @@ def copy_relayout_data(layout, relayout_data):
               Output('accuracy','children'),
               Output('precision','children'),
               Output('recall','children'),
+              Output('accuracy','style'),
+              Output('precision','style'),
+              Output('recall','style'),
               Input('plane','value'),
               State("graph", "relayoutData"))
 def change_plane_x(slider_value, relayout_data):
@@ -171,12 +175,18 @@ def change_plane_x(slider_value, relayout_data):
             showscale=False
         )
     predicted = np.where(x < slider_value, 0,1)
-    accuracy = f"Accuracy: {accuracy_score(labels, predicted):.2f}"
-    precision = f"Precision: {precision_score(labels, predicted):.2f}"
-    recall = f"Recall: {recall_score(labels, predicted):.2f}"
+    accuracy = accuracy_score(labels, predicted)
+    precision = precision_score(labels, predicted)
+    recall = recall_score(labels, predicted)
+    accuracy_label = f"Accuracy: {accuracy:.2f}"
+    precision_label = f"Precision: {precision:.2f}"
+    recall_label = f"Recall: {recall:.2f}"
+    accuracy_style = {'border-color':f"rgb(166,255,198,{evaluate_metric_quadratic(accuracy)})"}
+    precision_style = {'border-color': f"rgb(166,255,198,{evaluate_metric_quadratic(precision)})"}
+    recall_style = {'border-color': f"rgb(166,255,198,{evaluate_metric_quadratic(recall)})"}
     layout = graph_layout_default
     layout = copy_relayout_data(layout, relayout_data)
-    return go.Figure(data=[anger_samples, sad_samples,plane], layout=layout), accuracy, precision, recall
+    return go.Figure(data=[anger_samples, sad_samples,plane], layout=layout), accuracy_label, precision_label, recall_label, accuracy_style, precision_style, recall_style
 
 if __name__ == '__main__':
     app.run_server(debug=True)
