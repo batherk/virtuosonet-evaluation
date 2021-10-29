@@ -84,33 +84,65 @@ graph_fig = go.Figure(
 )
 app.layout = html.Div(
     children=[
-        html.H1(children='Latent Visualizer'),
         html.Div([
             html.Div([
                 html.Div(id='accuracy'),
                 html.Div(id='precision'),
                 html.Div(id='recall'),
-            ], id='metrics',
-                style={'display':'flex', 'width':'30%'}),
-            dcc.Graph(id='graph', figure=graph_fig),
+            ],
+                id='metrics',
+                style={
+                    'display':'flex',
+                    'flex-direction':'column',
+                    'justify-content':'space-evenly',
+                    'align-items': 'center',
+                    'width':'20vw',
+                }
+            ),
+            dcc.Graph(
+                id='graph',
+                figure=graph_fig,
+                style={
+                    'width': '80vw'
+                }
+            ),
+        ],
+            style={
+                'display':'flex',
+                'height':'90vh',
+            }
+        ),
 
-        ]),
 
-        dcc.Slider(id='plane',
-                   min=x.min(),
-                   max=x.max(),
-                   step=delta,
-                   value=X_START,
-                   marks={
-                       X_START: f"{X_START:.2f} (SVM)",
-                       x.min(): f"{x.min():.2f} (Min)",
-                       x.max(): f"{x.max():.2f} (Max)"
-                   },
-                   tooltip={
-                       'always_visible': False,
-                       'placement': 'top'
-                   },
-                   updatemode='drag')
+        html.Div([
+            html.Div([
+                dcc.Slider(
+                    id='plane',
+                    min=x.min(),
+                    max=x.max(),
+                    step=delta,
+                    value=X_START,
+                    marks={
+                        X_START: f"{X_START:.2f} (SVM)",
+                        x.min(): f"{x.min():.2f} (Min)",
+                        x.max(): f"{x.max():.2f} (Max)"
+                    },
+                    tooltip={
+                        'always_visible': False,
+                        'placement': 'top'
+                    },
+                    updatemode='drag'
+                )
+            ], style={
+                'height':'10vh',
+                'align-items':'center',
+                'width':'60vw',
+            })
+        ], style={
+            'display':'flex',
+            'justify-content':'center'
+        })
+
     ]
 )
 
@@ -139,9 +171,9 @@ def change_plane_x(slider_value, relayout_data):
             showscale=False
         )
     predicted = np.where(x < slider_value, 0,1)
-    accuracy = accuracy_score(labels, predicted)
-    precision = precision_score(labels, predicted)
-    recall = recall_score(labels, predicted)
+    accuracy = f"Accuracy: {accuracy_score(labels, predicted):.2f}"
+    precision = f"Precision: {precision_score(labels, predicted):.2f}"
+    recall = f"Recall: {recall_score(labels, predicted):.2f}"
     layout = graph_layout_default
     layout = copy_relayout_data(layout, relayout_data)
     return go.Figure(data=[anger_samples, sad_samples,plane], layout=layout), accuracy, precision, recall

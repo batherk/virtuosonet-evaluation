@@ -18,6 +18,7 @@ html, body {
     background-color: var(--grey-1);
     color: white;
     font-family: "Open Sans", Helvetica, sans-serif;
+    margin: 0;
 }
 
 #react-entry-point .tab {
@@ -27,6 +28,10 @@ html, body {
     border-left: 0;
     border-right: 0;
     border-bottom: 0;
+}
+
+#_dash-app-content{
+    height: 100vh;
 }
 
 #react-entry-point .tab:hover {
