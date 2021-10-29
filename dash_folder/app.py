@@ -5,11 +5,10 @@ from dash import html
 import plotly.graph_objects as go
 from utils.data_handling import load_data
 import numpy as np
-import plotly.io as pio
 from dash.dependencies import Input, Output
-pio.templates.default = 'plotly_dark'
+from dash_folder.template import assets_folder, colors
 
-app = dash.Dash(__name__, assets_folder='./assets')
+app = dash.Dash(__name__, assets_folder=assets_folder)
 
 df = load_data('latent_classification')
 X_START = 0.02
@@ -24,8 +23,7 @@ points = go.Scatter3d(
         mode='markers',
         marker=dict(
             size=5,
-            color=df['label'],                # set color to an array/list of desired values
-            colorscale='Viridis',   # choose a colorscale
+            color=[colors.yellow if label else colors.blue for label in df['label']],
             opacity=1)
         )
 

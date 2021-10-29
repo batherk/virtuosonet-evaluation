@@ -1,0 +1,202 @@
+:root {
+    --grey-1: #22232AFF;
+    --grey-2: #3D3E3FFF;
+    --grey-3: #787878FF;
+    --grey-4: #C6C6C6FF;
+    --yellow: #FFE31DFF;
+    --yellow-b: #FFF4A6FF;
+    --turquoise: #A6FFC6FF;
+    --turquoise-b: #DCFFE8FF;
+    --blue: #6CACFCFF;
+    --blue-dark: #4D69D9FF;
+    --pink: #DF9A9CFF;
+    --purple: #AB4B8BFF;
+    --background-color: var(--grey-1);
+}
+
+html, body {
+    background-color: var(--grey-1);
+    color: white;
+    font-family: "Open Sans", Helvetica, sans-serif;
+}
+
+#react-entry-point .tab {
+    background-color: var(--grey-1);
+    color: var(--grey-3);
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+}
+
+#react-entry-point .tab:hover {
+    color: var(--grey-4);
+    border-bottom: 2px solid var(--yellow-b);
+}
+
+#react-entry-point .tab.tab--selected,
+#react-entry-point .tab.tab--selected:hover {
+    color: white;
+    border-bottom: 2px solid var(--yellow);
+}
+
+div.dash-error-menu {
+    color: var(--grey-2)
+}
+
+/* Number input */
+
+#react-entry-point input[type=number] {
+    background: var(--background-color);
+    border: 1px solid var(--grey-3);
+    color: white;
+    padding: 10px 2px;
+    text-align: center;
+    width: calc(100% - 6px);
+}
+
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+/* Slider */
+
+#react-entry-point div.slider-container > div {
+    padding: 0px 25px !important;
+}
+
+.rc-slider-track {
+    background-color: var(--turquoise);
+}
+
+.rc-slider-dot-active {
+    border-color: var(--turquoise);
+    border: solid 2px var(--turquoise);
+}
+
+.rc-slider-handle {
+    background-color: var(--turquoise);
+    border-color: var(--turquoise);
+}
+
+.rc-slider-handle:hover, .rc-slider-handle-active:active {
+    border-color: var(--turquoise);
+}
+
+div.rc-slider-rail {
+    background-color: var(--grey-3);
+}
+
+div.rc-slider.rc-slider-disabled {
+    background: transparent;
+}
+
+div.rc-slider.rc-slider-disabled div.rc-slider-handle {
+    display: none;
+}
+
+/* Dropdown */
+.Select-control {
+    border: 1px solid var(--grey-3);
+}
+
+.VirtualizedSelectOption {
+    background-color: var(--grey-1);
+}
+
+.VirtualizedSelectFocusedOption, #react-entry-point .Select-control {
+    background-color: var(--grey-1);
+}
+
+div#react-entry-point .Select-control .Select-value .Select-value-label {
+    color: white;
+}
+
+/* Scrollbar */
+
+body::-webkit-scrollbar {
+    width: 12px;
+}
+
+body::-webkit-scrollbar-thumb {
+    background: var(--grey-3);
+    border: 2px solid var(--background-color);
+    border-radius: 10px;
+}
+
+body::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+
+/* Calendar */
+
+div.CalendarMonth,
+td.CalendarDay,
+div.DayPicker,
+input.DateInput_input,
+div.DayPickerNavigation_button,
+div.DateRangePickerInput,
+div.CalendarMonthGrid {
+    background: var(--background-color);
+}
+
+div.DateRangePicker_picker,
+div.DateRangePickerInput {
+    border: 1px solid var(--grey-3);
+}
+
+input.DateInput_input,
+div.CalendarMonth_caption,
+div.DayPicker_weekHeader,
+td.CalendarDay__default {
+    color: white;
+}
+
+svg.DateRangePickerInput_arrow_svg,
+svg.DayPickerNavigation_svg__horizontal {
+    fill: white;
+}
+
+td.CalendarDay__selected,
+td.CalendarDay__selected_start {
+    background: var(--turquoise);
+    color: black;
+}
+
+span.DayPickerKeyboardShortcuts_showSpan {
+    color: black;
+}
+
+td.CalendarDay__selected_span,
+td.CalendarDay__selected {
+    border: 1px double var(--turquoise);
+}
+
+.CalendarDay__selected_span:active,
+.CalendarDay__selected_span:hover,
+.CalendarDay__default:hover {
+    background: var(--turquoise-b);
+    color: black;
+}
+
+.DayPickerKeyboardShortcuts_panel {
+    background: var(--background-color);
+}
+
+.DayPickerKeyboardShortcuts_show__bottomRight::before {
+    border-right: 33px solid var(--turquoise);
+}
+
+.DayPickerKeyboardShortcuts_show__bottomRight:hover::before {
+    border-right: 33px solid var(--turquoise-b);
+}
