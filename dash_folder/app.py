@@ -58,17 +58,25 @@ plane = go.Surface(
     showlegend=True
 )
 
-graph_layout_default_settings = {'scene': {
-    'camera': {
-        'up': {'x': 0, 'y': 0, 'z': 1},
-        'center': {'x': -0.07214567600111127, 'y': -0.08497201560137722, 'z': -0.27943759806176177},
-        'eye': {'x': -0.5135394958253185, 'y': -1.9748036183855688, 'z': 0.7264046470993168},
-        'projection': {'type': 'perspective'},
+graph_layout_default_settings = {
+    'scene': {
+        'camera': {
+            'up': {'x': 0, 'y': 0, 'z': 1},
+            'center': {'x': -0.07214567600111127, 'y': -0.08497201560137722, 'z': -0.27943759806176177},
+            'eye': {'x': -0.5135394958253185, 'y': -1.9748036183855688, 'z': 0.7264046470993168},
+            'projection': {'type': 'perspective'},
+        },
+        'xaxis_title': 'Anger(-),Sad(+)-Dim',
+        'yaxis_title': 'PCA 1',
+        'zaxis_title': 'PCA 2',
     },
-    'xaxis_title': 'Anger(-),Sad(+)-Dim',
-    'yaxis_title': 'PCA 1',
-    'zaxis_title': 'PCA 2',
-}}
+    'legend':{
+        'xanchor':'right'
+    },
+    'margin':{
+        'autoexpand':False
+    }
+}
 
 app.layout = html.Div(
     children=[
