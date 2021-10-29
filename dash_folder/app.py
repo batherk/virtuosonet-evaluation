@@ -203,9 +203,9 @@ def get_trigger():
               Input('plane', 'value'),
               Input('classification-type', 'value'),
               Input('data-type', 'value'),
-              State('graph', 'relayoutData'),
-              State('graph', 'figure'))
-def change_plane_x(slider_value, classification_type, data_type, relayout_data, prev_graph):
+              Input('graph', 'figure'),
+              State('graph', 'relayoutData'))
+def change_plane_x(slider_value, classification_type, data_type, prev_graph, relayout_data):
     trigger = get_trigger()
 
     if data_type == 'train':
