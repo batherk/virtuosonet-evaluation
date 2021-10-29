@@ -13,13 +13,13 @@ app = dash.Dash(__name__, assets_folder=assets_folder)
 
 df = load_data('latent_classification')
 X_START = 0.02
-delta = 0.2
+delta = 0.1
 x = df['x'].to_numpy()
 y = df['y'].to_numpy()
 z = df['z'].to_numpy()
 labels = df['label'].to_numpy()
 
-yy, zz = np.meshgrid(np.arange(x.min(), y.max(), delta), np.array([z.min(), z.max()]))
+yy, zz = np.meshgrid(np.arange(y.min(), y.max(), delta), np.array([z.min(), z.max()]))
 xx = np.ones(yy.shape)
 
 points = go.Scatter3d(
@@ -42,8 +42,19 @@ plane = go.Surface(
             showscale=False
         )
 
-fig = go.Figure(
+
+graph_layout_default = go.Layout()
+graph_layout_default_settings = {'scene.camera': {
+    'up': {'x': 0, 'y': 0, 'z': 1},
+    'center': {'x': -0.07214567600111127, 'y': -0.08497201560137722, 'z': -0.27943759806176177},
+    'eye': {'x': -0.34373711056277384, 'y': -2.018823606148976, 'z': 0.7026350731906295},
+    'projection': {'type': 'perspective'}
+}}
+graph_layout_default.update(graph_layout_default_settings)
+
+graph_fig = go.Figure(
     data=[points, plane],
+    layout=graph_layout_default
 
 )
 app.layout = html.Div(
@@ -56,7 +67,7 @@ app.layout = html.Div(
                 html.Div(id='recall'),
             ], id='metrics',
                 style={'display':'flex', 'width':'30%'}),
-            dcc.Graph(id='graph', figure=fig),
+            dcc.Graph(id='graph', figure=graph_fig),
 
         ]),
 
@@ -65,7 +76,8 @@ app.layout = html.Div(
 )
 
 
-def copy_layout(layout, relayout_data):
+
+def copy_relayout_data(layout, relayout_data):
     # Keep zoom after updating graph
     if relayout_data:
         if 'scene.camera' in relayout_data:
@@ -91,8 +103,8 @@ def change_plane_x(slider_value, relayout_data):
     accuracy = accuracy_score(labels, predicted)
     precision = precision_score(labels, predicted)
     recall = recall_score(labels, predicted)
-    layout = go.Layout()
-    layout = copy_layout(layout, relayout_data)
+    layout = graph_layout_default
+    layout = copy_relayout_data(layout, relayout_data)
     return go.Figure(data=[points,plane], layout=layout), accuracy, precision, recall
 
 if __name__ == '__main__':
