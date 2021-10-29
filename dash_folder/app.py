@@ -47,7 +47,7 @@ graph_layout_default = go.Layout()
 graph_layout_default_settings = {'scene.camera': {
     'up': {'x': 0, 'y': 0, 'z': 1},
     'center': {'x': -0.07214567600111127, 'y': -0.08497201560137722, 'z': -0.27943759806176177},
-    'eye': {'x': -0.34373711056277384, 'y': -2.018823606148976, 'z': 0.7026350731906295},
+    'eye': {'x': -0.5135394958253185, 'y': -1.9748036183855688, 'z': 0.7264046470993168},
     'projection': {'type': 'perspective'}
 }}
 graph_layout_default.update(graph_layout_default_settings)
@@ -71,7 +71,21 @@ app.layout = html.Div(
 
         ]),
 
-        dcc.Slider(id='plane', min=x.min(), max=x.max(), step=delta, value=X_START, marks={0.02: 'SVM'}, updatemode='drag')
+        dcc.Slider(id='plane',
+                   min=x.min(),
+                   max=x.max(),
+                   step=delta,
+                   value=X_START,
+                   marks={
+                       X_START: f"{X_START:.2f} (SVM)",
+                       x.min(): f"{x.min():.2f} (Min)",
+                       x.max(): f"{x.max():.2f} (Max)"
+                   },
+                   tooltip={
+                       'always_visible': False,
+                       'placement': 'top'
+                   },
+                   updatemode='drag')
     ]
 )
 
