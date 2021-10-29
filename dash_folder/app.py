@@ -5,7 +5,7 @@ from dash import html
 import plotly.graph_objects as go
 from utils.data_handling import load_data
 import numpy as np
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 from dash_folder.template import assets_folder, colors
 
 app = dash.Dash(__name__, assets_folder=assets_folder)
@@ -48,8 +48,16 @@ app.layout = html.Div(
     ]
 )
 
-@app.callback(Output('graph','figure'), Input('plane','value'))
-def change_plane_x(slider_value):
+
+def copy_layout(layout, relayout_data):
+    # Keep zoom after updating graph
+    if relayout_data:
+        if 'scene.camera' in relayout_data:
+            layout.scene.camera.update(relayout_data['scene.camera'])
+    return layout
+
+@app.callback(Output('graph','figure'), Input('plane','value'), State("graph", "relayoutData"))
+def change_plane_x(slider_value, relayout_data):
     plane=go.Surface(
             x=xx*slider_value,
             y=yy,
@@ -58,7 +66,10 @@ def change_plane_x(slider_value):
             opacity=0.8,
             showscale=False
         )
-    return go.Figure(data=[points,plane])
+    layout = go.Layout()
+    layout = copy_layout(layout, relayout_data)
+    print(relayout_data)
+    return go.Figure(data=[points,plane], layout=layout)
 
 if __name__ == '__main__':
     app.run_server(debug=True)
