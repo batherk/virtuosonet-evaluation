@@ -96,10 +96,9 @@ app.layout = html.Div(
                             {'label': 'Test', 'value': 'test'}
                         ],
                         value='all',
+                        clearable=False,
                         style={
                             'width': '100%',
-                            'display': 'flex',
-                            'flex-direction': 'column',
                         }
                     ),
                     dcc.Dropdown(
@@ -110,6 +109,7 @@ app.layout = html.Div(
                             {'label': 'True/False Negatives/Positives', 'value': 'tfnp'}
                         ],
                         value='classes',
+                        clearable=False,
                         style={
                             'width': '100%',
                         }
