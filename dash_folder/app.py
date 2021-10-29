@@ -74,9 +74,19 @@ app.layout = html.Div(
     children=[
         html.Div([
             html.Div([
-                html.Div(id='accuracy'),
-                html.Div(id='precision'),
-                html.Div(id='recall'),
+                html.Div([
+                    html.Div(id='accuracy'),
+                    html.Div(id='precision'),
+                    html.Div(id='recall'),
+                ],
+                    id='metrics',
+                    style={
+                        'display':'flex',
+                        'flex-direction':'column',
+                        'justify-content':'space-evenly',
+                        'height':'50%',
+                    }
+                ),
                 html.Div([
                     dcc.Dropdown(
                         id='data-type',
@@ -91,13 +101,7 @@ app.layout = html.Div(
                             'display': 'flex',
                             'flex-direction': 'column',
                         }
-                    )
-                ],
-                    style={
-                        'width': '80%',
-                    }
-                ),
-                html.Div([
+                    ),
                     dcc.Dropdown(
                         id='classification-type',
                         options=[
@@ -111,12 +115,17 @@ app.layout = html.Div(
                         }
                     )
                 ],
+                    id='dropdowns',
                     style={
                         'width': '80%',
+                        'display':'flex',
+                        'flex-direction':'column',
+                        'justify-content':'space-evenly',
+                        'height':'30%'
                     }
                 ),
             ],
-                id='metrics',
+                id='sidebar-left',
                 style={
                     'display': 'flex',
                     'flex-direction': 'column',
@@ -130,7 +139,7 @@ app.layout = html.Div(
                     id='graph',
                     style={
                         'height': '90vh',
-                        'width':'100%',
+                        'width': '100%',
                     }
                 ),
                 html.Div([
@@ -158,13 +167,13 @@ app.layout = html.Div(
                     'width': '50vw',
                 })
             ],
-            style={
-                'height':'100vh',
-                'display':'flex',
-                'flex-direction':'column',
-                'align-items': 'center',
-                'width':'70%',
-            }),
+                style={
+                    'height': '100vh',
+                    'display': 'flex',
+                    'flex-direction': 'column',
+                    'align-items': 'center',
+                    'width': '70%',
+                }),
 
         ], style={
             'display': 'flex',
