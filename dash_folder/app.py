@@ -174,11 +174,14 @@ app.layout = html.Div(
 )
 
 
-def copy_relayout_data(layout, relayout_data):
-    # Keep zoom after updating graph
-    if relayout_data:
-        if 'scene.camera' in relayout_data:
+def get_layout(relayout_data, prev_graph):
+    layout = go.Layout()
+    if prev_graph:
+        layout.update(prev_graph['layout'])
+        if relayout_data and 'scene.camera' in relayout_data:
             layout.scene.camera.update(relayout_data['scene.camera'])
+    else:
+        layout.update(graph_layout_default_settings)
     return layout
 
 
@@ -263,11 +266,7 @@ def change_plane_x(slider_value, classification_type, data_type, relayout_data, 
     precision_style = {'border-color': f"rgb(166,255,198,{evaluate_metric_quadratic(precision)})"}
     recall_style = {'border-color': f"rgb(166,255,198,{evaluate_metric_quadratic(recall)})"}
 
-    layout = go.Layout()
-    if relayout_data and 'camera' in relayout_data:
-        layout = copy_relayout_data(layout, relayout_data)
-    else:
-        layout.update(graph_layout_default_settings)
+    layout = get_layout(relayout_data, prev_graph)
     return go.Figure(data=data,
                      layout=layout), accuracy_label, precision_label, recall_label, accuracy_style, precision_style, recall_style
 
