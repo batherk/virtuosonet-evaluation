@@ -5,7 +5,7 @@ import pandas as pd
 
 SAVE_DATA = False
 SAVE_NAME = 'disentangled_dimensions'
-DIMENSIONS = [['Relax', 'Anger'], ['Sad', 'Enjoy']]
+DIMENSIONS = [['Sad', 'Enjoy'], ['Relax', 'Anger']]
 
 df = load_data('all_styles_100')
 
