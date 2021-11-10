@@ -6,7 +6,8 @@
     padding: 20px;
 }
 
-#classification-type div.Select-menu-outer{
+#axis-2 div.Select-menu-outer,
+#axis-3 div.Select-menu-outer{
     position: absolute;
     transform: translateY(-100%);
 }

@@ -14,21 +14,34 @@ import pandas as pd
 
 app = dash.Dash(__name__, assets_folder=assets_folder)
 
+dimensions = 3
+
 data_df = load_data('all_styles_100')
 dimension_df = load_data('disentangled_dimensions')
 mask = (data_df['style_name'] == 'Sad') | (data_df['style_name'] == 'Enjoy')
 
-latent_vectors = data_df[mask].loc[:,'l0':].to_numpy()
-dimension_vectors = dimension_df.loc[:,'l0':].to_numpy()
+latent_vectors = data_df[mask].loc[:, 'l0':].to_numpy()
+dimension_vectors = dimension_df.loc[:, 'l0':].to_numpy()
 
 style_name = data_df[mask]['style_name'].reset_index(drop=True)
 labels = style_name.apply(lambda x: 1 if x == 'Enjoy' else 0).rename('label')
-coordinates = get_coordinates(latent_vectors, dimension_vectors, 3)
+coordinates = get_coordinates(latent_vectors, dimension_vectors, dimensions)
 
-all = pd.concat([style_name, labels, pd.DataFrame(coordinates, columns=['x', 'y', 'z'])], axis=1)
+all = pd.concat([labels, pd.DataFrame(coordinates, columns=['x', 'y', 'z'])], axis=1)
 
-train = all[(all.index < 80) | ((all.index >= 100) & (all.index < 180))]
-test = all[((all.index >= 80) & (all.index < 100)) | (all.index > 180)]
+
+def get_axis_name(df, index, show_direction=True):
+    return f"{df.iloc[index]['negative_name']} {'(-)' if show_direction else ''} " \
+           f"- {df.iloc[index]['positive_name']} {'(+)' if show_direction else ''}"
+
+
+axis_options = [
+                   {'label': get_axis_name(dimension_df, i, show_direction=False), 'value': f"dim{i + 1}"} for i in
+                   range(len(dimension_df.index))
+               ] + [
+                   {'label': f"PCA {i + 1}", 'value': f"pca{i + 1}"} for i in
+                   range(dimensions - len(dimension_df.index))
+               ]
 
 min_x = all['x'].min()
 max_x = all['x'].max()
@@ -78,18 +91,18 @@ graph_layout_default_settings = {
             'eye': {'x': -0.5135394958253185, 'y': -1.9748036183855688, 'z': 0.7264046470993168},
             'projection': {'type': 'perspective'},
         },
-        'xaxis_title': f"{dimension_df.iloc[0]['negative_name']} (-) - {dimension_df.iloc[0]['positive_name']} (+)",
-        'yaxis_title': f"{dimension_df.iloc[1]['negative_name']} (-) - {dimension_df.iloc[1]['positive_name']} (+)",
+        'xaxis_title': get_axis_name(dimension_df, 0),
+        'yaxis_title': get_axis_name(dimension_df, 1),
         'zaxis_title': 'PCA 1',
-        'xaxis':{
-            'range': [min_x, max_x]
-        }
+        # 'xaxis': {
+        #     'range': [min_x, max_x]
+        # }
     },
-    'legend':{
-        'xanchor':'right'
+    'legend': {
+        'xanchor': 'right'
     },
-    'margin':{
-        'autoexpand':False
+    'margin': {
+        'autoexpand': False
     },
 }
 
@@ -104,10 +117,10 @@ app.layout = html.Div(
                 ],
                     id='metrics',
                     style={
-                        'display':'flex',
-                        'flex-direction':'column',
-                        'justify-content':'space-evenly',
-                        'height':'50%',
+                        'display': 'flex',
+                        'flex-direction': 'column',
+                        'justify-content': 'space-evenly',
+                        'height': '50%',
                     }
                 ),
                 html.Div([
@@ -141,10 +154,47 @@ app.layout = html.Div(
                     id='dropdowns',
                     style={
                         'width': '80%',
-                        'display':'flex',
-                        'flex-direction':'column',
-                        'justify-content':'space-evenly',
-                        'height':'30%'
+                        'display': 'flex',
+                        'flex-direction': 'column',
+                        'justify-content': 'space-evenly',
+                        'height': '30%'
+                    }
+                ),
+                html.Div([
+                    dcc.Dropdown(
+                        id='axis-1',
+                        options=axis_options,
+                        value='dim1',
+                        clearable=False,
+                        style={
+                            'width': '100%',
+                        }
+                    ),
+                    dcc.Dropdown(
+                        id='axis-2',
+                        options=axis_options,
+                        value='dim2',
+                        clearable=False,
+                        style={
+                            'width': '100%',
+                        }),
+                    dcc.Dropdown(
+                        id='axis-3',
+                        options=axis_options,
+                        value='pca1',
+                        clearable=False,
+                        style={
+                            'width': '100%',
+                        }
+                    )
+                ],
+                    id='axes',
+                    style={
+                        'width': '80%',
+                        'display': 'flex',
+                        'flex-direction': 'column',
+                        'justify-content': 'space-evenly',
+                        'height': '30%'
                     }
                 ),
             ],
@@ -235,17 +285,43 @@ def get_trigger():
               Input('plane', 'value'),
               Input('classification-type', 'value'),
               Input('data-type', 'value'),
-              Input('graph', 'figure'),
+              Input('axis-1', 'value'),
+              Input('axis-2', 'value'),
+              Input('axis-3', 'value'),
+              State('graph', 'figure'),
               State('graph', 'relayoutData'))
-def change_plane_x(slider_value, classification_type, data_type, prev_graph, relayout_data):
+def change_plane_x(slider_value, classification_type, data_type, axis_1, axis_2, axis_3, prev_graph, relayout_data):
     trigger = get_trigger()
 
+    layout = get_layout(relayout_data, prev_graph)
+
+
+    columns = []
+    column_names = ['x', 'y', 'z']
+    axis_names = []
+
+    for axis in [axis_1, axis_2, axis_3]:
+        if 'pca' in axis:
+            columns.append('z')
+            axis_names.append('PCA 1')
+        else:
+            dim = int(axis[-1]) - 1
+            columns.append(column_names[dim])
+            axis_names.append(get_axis_name(dimension_df, dim))
+    sample_df = pd.DataFrame(labels)
+    for i, col in enumerate(columns):
+        sample_df[column_names[i]] = all[col]
+
+    layout.update({'scene':{
+        'xaxis_title': axis_names[0],
+        'yaxis_title': axis_names[1],
+        'zaxis_title': axis_names[2],
+    }})
+
     if data_type == 'train':
-        sample_df = train
+        sample_df = sample_df[sample_df.index < 160]
     elif data_type == 'test':
-        sample_df = test
-    else:
-        sample_df = all
+        sample_df = sample_df[sample_df.index >= 160]
 
     predicted = pd.Series(np.where(sample_df['x'] < slider_value, 0, 1), index=sample_df.index)
 
@@ -273,6 +349,7 @@ def change_plane_x(slider_value, classification_type, data_type, prev_graph, rel
         cn = ['True Positive', 'True Negative', 'False Positive', 'False Negative']
         data = [scatter(c[i]['x'], c[i]['y'], c[i]['z'], cn[i], cc[i]) for i in range(len(c))]
         data.append(plane)
+
     elif classification_type == 'cor':
         correct_mask = sample_df['label'] == pd.Series(predicted)
         cs = sample_df[correct_mask]
@@ -280,12 +357,13 @@ def change_plane_x(slider_value, classification_type, data_type, prev_graph, rel
         correct_scatter = scatter(cs['x'], cs['y'], cs['z'], 'Correct classification', colors.turquoise)
         wrong_scatter = scatter(ws['x'], ws['y'], ws['z'], 'Wrong classification', colors.pink)
         data = [correct_scatter, wrong_scatter, plane]
+
     else:
         class_mask = sample_df['label'] == True
         tr = sample_df[class_mask]
         fa = sample_df[class_mask == False]
         true_scatter = scatter(tr['x'], tr['y'], tr['z'], 'Sad', colors.blue)
-        false_scatter = scatter(fa['x'], fa['y'], fa['z'], 'Anger', colors.yellow)
+        false_scatter = scatter(fa['x'], fa['y'], fa['z'], 'Enjoy', colors.yellow)
         data = [true_scatter, false_scatter, plane]
 
     accuracy = accuracy_score(sample_df['label'], predicted)
@@ -298,7 +376,7 @@ def change_plane_x(slider_value, classification_type, data_type, prev_graph, rel
     precision_style = {'border-color': f"rgb(166,255,198,{evaluate_metric_quadratic(precision)})"}
     recall_style = {'border-color': f"rgb(166,255,198,{evaluate_metric_quadratic(recall)})"}
 
-    layout = get_layout(relayout_data, prev_graph)
+
     return go.Figure(data=data,
                      layout=layout), accuracy_label, precision_label, recall_label, accuracy_style, precision_style, recall_style
 
