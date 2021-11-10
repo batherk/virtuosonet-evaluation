@@ -277,13 +277,16 @@ def change_plane_x(slider_value, classification_type, data_type, axis_1, axis_2,
 
     layout = get_layout(relayout_data, prev_graph)
 
-    mask = (data_df['style_name'] == 'Sad') | (data_df['style_name'] == 'Enjoy')
+    dim = int(axis_1[-1]) - 1
+    negative_name = dimension_df.iloc[dim]['negative_name']
+    positive_name = dimension_df.iloc[dim]['positive_name']
+    mask = (data_df['style_name'] == negative_name) | (data_df['style_name'] == positive_name)
 
     latent_vectors = data_df[mask].loc[:, 'l0':].to_numpy()
     coordinates = get_coordinates(latent_vectors, dimension_vectors, dimensions)
 
     style_name = data_df[mask]['style_name'].reset_index(drop=True)
-    labels = style_name.apply(lambda x: 1 if x == 'Enjoy' else 0).rename('label')
+    labels = style_name.apply(lambda x: 1 if x == positive_name else 0).rename('label')
 
     all = pd.concat([labels, pd.DataFrame(coordinates, columns=['x', 'y', 'z'])], axis=1)
 
@@ -371,8 +374,8 @@ def change_plane_x(slider_value, classification_type, data_type, axis_1, axis_2,
         class_mask = sample_df['label'] == True
         tr = sample_df[class_mask]
         fa = sample_df[class_mask == False]
-        true_scatter = scatter(tr['x'], tr['y'], tr['z'], 'Sad', colors.blue)
-        false_scatter = scatter(fa['x'], fa['y'], fa['z'], 'Enjoy', colors.yellow)
+        true_scatter = scatter(tr['x'], tr['y'], tr['z'], positive_name, colors.blue)
+        false_scatter = scatter(fa['x'], fa['y'], fa['z'], negative_name, colors.yellow)
         data = [true_scatter, false_scatter, plane]
 
     accuracy = accuracy_score(sample_df['label'], predicted)
