@@ -10,7 +10,7 @@ from virtuosoNet.virtuoso import encoder_score as encs
 from virtuosoNet.virtuoso import encoder_perf as encp
 from virtuosoNet.virtuoso import decoder as dec
 from virtuosoNet.virtuoso import residual_selector as res
-from virtuosoNet.virtuoso.inference import inference
+from virtuosoNet.virtuoso.inference import inference, get_input_from_xml
 import utils.virtuoso_settings as args
 
 def load_model_and_args():
@@ -56,3 +56,11 @@ def load_model_and_args():
 
 def autoencode(model, args):
     return inference(args, model, args.device)
+
+def encode_style(model, args):
+    model = virtuoso_utils.load_weight(model, args.checkpoint)
+    model.eval()
+    score, input, edges, note_locations = get_input_from_xml(args.xml_path, args.composer, args.qpm_primo,
+                                                             model.stats['input_keys'], model.stats['graph_keys'],
+                                                             model.stats['stats'], args.device)
+    return model.encode_style(input, None, edges, note_locations, num_samples=10)

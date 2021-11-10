@@ -1,30 +1,6 @@
-#%% Imports
+from utils.virtuoso_running import load_model_and_args, encode_style
+from virtuoso.get_features_from_midi import load_xml_and_perf_midi
 
-from utils import virtuoso_running as vh
-
-#%% Settings
-
-MODEL_TYPE = "isgn"
-
-PATH = "test_pieces/emotionNet/Bach_Prelude_1/"
-PERFORMANCE_NAME = "Relax_sub1"
-COMPOSER_NAME = "Bach"
-DATA_FILE = "training_data"
-
-#%% Load Model
-
-model = vh.load_model(MODEL_TYPE)
-
-#%% Load means and stds from data file
-
-means, stds, _, _, _, _, _ = vh.load_stat_file(DATA_FILE)
-
-#%% Encode Song
-
-z_vector, qpm_primo = vh.load_file_and_encode_style(
-    PATH, PERFORMANCE_NAME, COMPOSER_NAME, model, means, stds
-)
-
-#%%
-
-print(qpm_primo, z_vector)
+model, args = load_model_and_args()
+#print(load_xml_and_perf_midi(args.xml_path, args.midi_path, args.composer))
+style = encode_style(model, args)
