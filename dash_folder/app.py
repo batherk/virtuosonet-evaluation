@@ -15,19 +15,13 @@ import pandas as pd
 app = dash.Dash(__name__, assets_folder=assets_folder)
 
 dimensions = 3
+X_START = 0.02
+SLIDER_STEPS = 50
+
 
 data_df = load_data('all_styles_100')
 dimension_df = load_data('disentangled_dimensions')
-mask = (data_df['style_name'] == 'Sad') | (data_df['style_name'] == 'Enjoy')
-
-latent_vectors = data_df[mask].loc[:, 'l0':].to_numpy()
 dimension_vectors = dimension_df.loc[:, 'l0':].to_numpy()
-
-style_name = data_df[mask]['style_name'].reset_index(drop=True)
-labels = style_name.apply(lambda x: 1 if x == 'Enjoy' else 0).rename('label')
-coordinates = get_coordinates(latent_vectors, dimension_vectors, dimensions)
-
-all = pd.concat([labels, pd.DataFrame(coordinates, columns=['x', 'y', 'z'])], axis=1)
 
 
 def get_axis_name(df, index, show_direction=True):
@@ -35,26 +29,15 @@ def get_axis_name(df, index, show_direction=True):
            f"- {df.iloc[index]['positive_name']} {'(+)' if show_direction else ''}"
 
 
-axis_options = [
-                   {'label': get_axis_name(dimension_df, i, show_direction=False), 'value': f"dim{i + 1}"} for i in
-                   range(len(dimension_df.index))
-               ] + [
-                   {'label': f"PCA {i + 1}", 'value': f"pca{i + 1}"} for i in
-                   range(dimensions - len(dimension_df.index))
-               ]
+axis_1_options = [
+    {'label': get_axis_name(dimension_df, i, show_direction=False), 'value': f"dim{i + 1}"} for i in
+    range(len(dimension_df.index))
+]
 
-min_x = all['x'].min()
-max_x = all['x'].max()
-min_y = all['y'].min()
-max_y = all['y'].max()
-min_z = all['z'].min()
-max_z = all['z'].max()
-
-X_START = 0.02
-delta = 0.1
-
-yy, zz = np.meshgrid(np.arange(min_y, max_y, delta), np.array([min_z, max_z]))
-xx = np.ones(yy.shape)
+other_axis_options = axis_1_options + [
+    {'label': f"PCA {i + 1}", 'value': f"pca{i + 1}"} for i in
+    range(dimensions - len(dimension_df.index))
+]
 
 
 def scatter(x, y, z, name, color):
@@ -72,17 +55,6 @@ def scatter(x, y, z, name, color):
     )
 
 
-plane = go.Surface(
-    x=xx * X_START,
-    y=yy,
-    z=zz,
-    colorscale=['grey' for i in range(len(xx))],
-    opacity=0.8,
-    showscale=False,
-    name='Classification Plane',
-    showlegend=True
-)
-
 graph_layout_default_settings = {
     'scene': {
         'camera': {
@@ -91,12 +63,6 @@ graph_layout_default_settings = {
             'eye': {'x': -0.5135394958253185, 'y': -1.9748036183855688, 'z': 0.7264046470993168},
             'projection': {'type': 'perspective'},
         },
-        'xaxis_title': get_axis_name(dimension_df, 0),
-        'yaxis_title': get_axis_name(dimension_df, 1),
-        'zaxis_title': 'PCA 1',
-        # 'xaxis': {
-        #     'range': [min_x, max_x]
-        # }
     },
     'legend': {
         'xanchor': 'right'
@@ -163,7 +129,7 @@ app.layout = html.Div(
                 html.Div([
                     dcc.Dropdown(
                         id='axis-1',
-                        options=axis_options,
+                        options=axis_1_options,
                         value='dim1',
                         clearable=False,
                         style={
@@ -172,7 +138,7 @@ app.layout = html.Div(
                     ),
                     dcc.Dropdown(
                         id='axis-2',
-                        options=axis_options,
+                        options=other_axis_options,
                         value='dim2',
                         clearable=False,
                         style={
@@ -180,7 +146,7 @@ app.layout = html.Div(
                         }),
                     dcc.Dropdown(
                         id='axis-3',
-                        options=axis_options,
+                        options=other_axis_options,
                         value='pca1',
                         clearable=False,
                         style={
@@ -218,15 +184,6 @@ app.layout = html.Div(
                 html.Div([
                     dcc.Slider(
                         id='plane',
-                        min=min_x,
-                        max=max_x,
-                        step=delta,
-                        value=X_START,
-                        marks={
-                            X_START: f"{X_START:.2f} (SVM)",
-                            min_x: f"{min_x:.2f} (Min)",
-                            max_x: f"{max_x:.2f} (Max)"
-                        },
                         tooltip={
                             'always_visible': False,
                             'placement': 'top'
@@ -275,6 +232,31 @@ def get_trigger():
         return None
 
 
+@app.callback(Output('plane', 'marks'),
+              Output('plane', 'min'),
+              Output('plane', 'max'),
+              Output('plane', 'value'),
+              Output('plane', 'step'),
+              Input('axis-1', 'value'))
+def change_classification_axis(axis_1):
+    dim = int(axis_1[-1]) - 1
+    negative_name = dimension_df.iloc[dim]['negative_name']
+    positive_name = dimension_df.iloc[dim]['positive_name']
+    mask = (data_df['style_name'] == negative_name) | (data_df['style_name'] == positive_name)
+
+    latent_vectors = data_df[mask].loc[:, 'l0':].to_numpy()
+    coordinates = get_coordinates(latent_vectors, dimension_vectors, dimensions)
+    values = coordinates.transpose()[dim]
+    intercept = dimension_df.iloc[dim]['direction_intercept'][0]
+    marks = {
+        values.min(): f"Min: {values.min():.2f}",
+        values.max(): f"Max: {values.max():.2f}",
+        intercept: f"SVM: {intercept:.2f}"
+    }
+    steps = (values.max()-values.min())/SLIDER_STEPS
+    return marks, values.min(), values.max(), intercept, steps
+
+
 @app.callback(Output('graph', 'figure'),
               Output('accuracy', 'children'),
               Output('precision', 'children'),
@@ -295,6 +277,15 @@ def change_plane_x(slider_value, classification_type, data_type, axis_1, axis_2,
 
     layout = get_layout(relayout_data, prev_graph)
 
+    mask = (data_df['style_name'] == 'Sad') | (data_df['style_name'] == 'Enjoy')
+
+    latent_vectors = data_df[mask].loc[:, 'l0':].to_numpy()
+    coordinates = get_coordinates(latent_vectors, dimension_vectors, dimensions)
+
+    style_name = data_df[mask]['style_name'].reset_index(drop=True)
+    labels = style_name.apply(lambda x: 1 if x == 'Enjoy' else 0).rename('label')
+
+    all = pd.concat([labels, pd.DataFrame(coordinates, columns=['x', 'y', 'z'])], axis=1)
 
     columns = []
     column_names = ['x', 'y', 'z']
@@ -312,7 +303,7 @@ def change_plane_x(slider_value, classification_type, data_type, axis_1, axis_2,
     for i, col in enumerate(columns):
         sample_df[column_names[i]] = all[col]
 
-    layout.update({'scene':{
+    layout.update({'scene': {
         'xaxis_title': axis_names[0],
         'yaxis_title': axis_names[1],
         'zaxis_title': axis_names[2],
@@ -323,16 +314,34 @@ def change_plane_x(slider_value, classification_type, data_type, axis_1, axis_2,
     elif data_type == 'test':
         sample_df = sample_df[sample_df.index >= 160]
 
+    yy, zz = np.meshgrid(np.arange(sample_df['y'].min(), sample_df['y'].max(), (sample_df['x'].max() - sample_df['x'].min())/SLIDER_STEPS),
+                         np.array([sample_df['z'].min(), sample_df['z'].max()]))
+    xx = np.ones(yy.shape)
+
     predicted = pd.Series(np.where(sample_df['x'] < slider_value, 0, 1), index=sample_df.index)
 
-    if trigger == 'plane' or not prev_graph:
+    if not prev_graph:
         plane = go.Surface(
-            x=xx * slider_value,
+            x=xx * X_START,
             y=yy,
             z=zz,
             colorscale=['grey' for i in range(len(xx))],
             opacity=0.8,
-            showscale=False
+            showscale=False,
+            name='Classification Plane',
+            showlegend=True
+        )
+
+    elif trigger == 'plane':
+        plane = go.Surface(
+            x=xx * slider_value,
+            y=yy,
+            z=zz,
+            colorscale=['grey' for _ in range(len(xx))],
+            opacity=0.8,
+            showscale=False,
+            name='Classification Plane',
+            showlegend=True
         )
     else:
         plane = prev_graph['data'][-1]
@@ -375,7 +384,6 @@ def change_plane_x(slider_value, classification_type, data_type, axis_1, axis_2,
     accuracy_style = {'border-color': f"rgb(166,255,198,{evaluate_metric_quadratic(accuracy)})"}
     precision_style = {'border-color': f"rgb(166,255,198,{evaluate_metric_quadratic(precision)})"}
     recall_style = {'border-color': f"rgb(166,255,198,{evaluate_metric_quadratic(recall)})"}
-
 
     return go.Figure(data=data,
                      layout=layout), accuracy_label, precision_label, recall_label, accuracy_style, precision_style, recall_style
