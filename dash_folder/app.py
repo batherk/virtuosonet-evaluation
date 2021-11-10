@@ -15,7 +15,6 @@ import pandas as pd
 app = dash.Dash(__name__, assets_folder=assets_folder)
 
 dimensions = 3
-X_START = 0.02
 SLIDER_STEPS = 50
 
 
@@ -281,6 +280,7 @@ def change_plane_x(slider_value, classification_type, data_type, axis_1, axis_2,
     negative_name = dimension_df.iloc[dim]['negative_name']
     positive_name = dimension_df.iloc[dim]['positive_name']
     mask = (data_df['style_name'] == negative_name) | (data_df['style_name'] == positive_name)
+    intercept = dimension_df.iloc[dim]['direction_intercept'][0]
 
     latent_vectors = data_df[mask].loc[:, 'l0':].to_numpy()
     coordinates = get_coordinates(latent_vectors, dimension_vectors, dimensions)
@@ -317,15 +317,15 @@ def change_plane_x(slider_value, classification_type, data_type, axis_1, axis_2,
     elif data_type == 'test':
         sample_df = sample_df[sample_df.index >= 160]
 
-    yy, zz = np.meshgrid(np.arange(sample_df['y'].min(), sample_df['y'].max(), (sample_df['x'].max() - sample_df['x'].min())/SLIDER_STEPS),
-                         np.array([sample_df['z'].min(), sample_df['z'].max()]))
-    xx = np.ones(yy.shape)
-
     predicted = pd.Series(np.where(sample_df['x'] < slider_value, 0, 1), index=sample_df.index)
 
     if not prev_graph:
+        yy, zz = np.meshgrid(np.arange(sample_df['y'].min(), sample_df['y'].max(),
+                                       (sample_df['x'].max() - sample_df['x'].min()) / SLIDER_STEPS),
+                             np.array([sample_df['z'].min(), sample_df['z'].max()]))
+        xx = np.ones(yy.shape)
         plane = go.Surface(
-            x=xx * X_START,
+            x=xx * intercept,
             y=yy,
             z=zz,
             colorscale=['grey' for i in range(len(xx))],
@@ -336,6 +336,10 @@ def change_plane_x(slider_value, classification_type, data_type, axis_1, axis_2,
         )
 
     elif trigger == 'plane':
+        yy, zz = np.meshgrid(np.arange(sample_df['y'].min(), sample_df['y'].max(),
+                                       (sample_df['x'].max() - sample_df['x'].min()) / SLIDER_STEPS),
+                             np.array([sample_df['z'].min(), sample_df['z'].max()]))
+        xx = np.ones(yy.shape)
         plane = go.Surface(
             x=xx * slider_value,
             y=yy,
