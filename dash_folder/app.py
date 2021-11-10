@@ -1,6 +1,5 @@
 # file app.py
 import dash
-import pandas as pd
 from dash import dcc
 from dash import html
 import plotly.graph_objects as go
@@ -10,11 +9,24 @@ from dash.dependencies import Input, Output, State
 from dash_folder.template import assets_folder, colors
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 from utils.metric_evaluation import evaluate_metric_quadratic
+from utils.dimension_manipulation import get_coordinates
 import pandas as pd
 
 app = dash.Dash(__name__, assets_folder=assets_folder)
 
-all = load_data('latent_classification')
+data_df = load_data('all_styles_100')
+dimension_df = load_data('disentangled_dimensions')
+mask = (data_df['style_name'] == 'Sad') | (data_df['style_name'] == 'Enjoy')
+
+latent_vectors = data_df[mask].loc[:,'l0':].to_numpy()
+dimension_vectors = dimension_df.loc[:,'l0':].to_numpy()
+
+style_name = data_df[mask]['style_name'].reset_index(drop=True)
+labels = style_name.apply(lambda x: 1 if x == 'Enjoy' else 0).rename('label')
+coordinates = get_coordinates(latent_vectors, dimension_vectors, 3)
+
+all = pd.concat([style_name, labels, pd.DataFrame(coordinates, columns=['x', 'y', 'z'])], axis=1)
+
 train = all[(all.index < 80) | ((all.index >= 100) & (all.index < 180))]
 test = all[((all.index >= 80) & (all.index < 100)) | (all.index > 180)]
 
@@ -66,9 +78,9 @@ graph_layout_default_settings = {
             'eye': {'x': -0.5135394958253185, 'y': -1.9748036183855688, 'z': 0.7264046470993168},
             'projection': {'type': 'perspective'},
         },
-        'xaxis_title': 'Anger(-),Sad(+)-Dim',
-        'yaxis_title': 'PCA 1',
-        'zaxis_title': 'PCA 2',
+        'xaxis_title': f"{dimension_df.iloc[0]['negative_name']} (-) - {dimension_df.iloc[0]['positive_name']} (+)",
+        'yaxis_title': f"{dimension_df.iloc[1]['negative_name']} (-) - {dimension_df.iloc[1]['positive_name']} (+)",
+        'zaxis_title': 'PCA 1',
         'xaxis':{
             'range': [min_x, max_x]
         }

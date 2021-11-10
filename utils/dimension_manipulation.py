@@ -1,6 +1,35 @@
 import numpy as np
 from copy import deepcopy
+from sklearn.decomposition import PCA
 
+# Projections
+
+def scalar_projection(x,y):
+    return np.dot(x, y) / np.linalg.norm(y)
+
+def vector_projection(x,y):
+    return y * np.dot(x, y) / np.dot(y, y)
+
+# Visualization
+
+def get_coordinates(latent_vectors, dimension_vectors, output_dimensions):
+    """
+    Creating understandable coordinates for visualizing latent vectors.
+    Returns a numpy array with the scalar projection of each latent vector on to each dimension vectors.
+    If the output_dimensions is larger than the amount of latent vectors, PCA will be used for the remaining dimensions.
+    """
+    scalar_projections = np.array(
+        [[scalar_projection(x, y) for x in latent_vectors] for y in dimension_vectors]).transpose()
+    if output_dimensions <= dimension_vectors.shape[0]:
+        return scalar_projections[:, :output_dimensions]
+    else:
+        remaining_dimensions = output_dimensions - dimension_vectors.shape[0]
+        pca = PCA(n_components=remaining_dimensions)
+        pca_coords = pca.fit_transform(X=latent_vectors)
+        return np.append(scalar_projections, pca_coords, axis=1)
+
+
+# Matrix
 
 def get_dimensionality_reduction_matrix(vector):
     non_zero_indicies = np.nonzero(vector)[0]

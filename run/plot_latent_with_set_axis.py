@@ -4,7 +4,7 @@ from utils.data_handling import load_data
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
-from utils.matrix import get_dimensionality_reduction_matrix
+from utils.dimension_manipulation import get_dimensionality_reduction_matrix
 from utils.data_handling import save_data
 import pandas as pd
 
