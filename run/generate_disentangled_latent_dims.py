@@ -1,9 +1,13 @@
 import numpy as np
 from utils.data_handling import load_data, save_data
 from sklearn import svm
+from sklearn.metrics import roc_curve
+import matplotlib.pyplot as plt
 import pandas as pd
+from utils.dimension_manipulation import scalar_projection
 
 SAVE_DATA = False
+PLOT_ROC = True
 SAVE_NAME = 'disentangled_dimensions'
 DIMENSIONS = [['Sad', 'Enjoy'], ['Relax', 'Anger']]
 
@@ -21,6 +25,8 @@ for dimension_start, dimension_end in DIMENSIONS:
     classifier = svm.SVC(kernel='linear')
     classifier.fit(X, y)
 
+
+
     disentangled_dimension = {
         'negative_name': dimension_start,
         'positive_name': dimension_end,
@@ -28,6 +34,13 @@ for dimension_start, dimension_end in DIMENSIONS:
     }
 
     dimension_vector = classifier.coef_.squeeze()
+
+    if PLOT_ROC:
+        classified_dec = classifier.decision_function(X)
+        xs, ys, _ = roc_curve(y, classified_dec)
+        plt.plot(xs, ys, label=f"{dimension_start} - {dimension_end}")
+        plt.legend()
+        plt.show()
 
     for i, value in enumerate(dimension_vector):
         disentangled_dimension[f"l{i}"] = value
