@@ -4,12 +4,13 @@ from sklearn import svm
 from sklearn.metrics import roc_curve
 import matplotlib.pyplot as plt
 import pandas as pd
-from utils.dimension_manipulation import scalar_projection
+import itertools
 
 SAVE_DATA = False
 PLOT_ROC = True
-SAVE_NAME = 'disentangled_dimensions'
-DIMENSIONS = [['Sad', 'Enjoy'], ['Relax', 'Anger']]
+SAVE_NAME = 'disentangled_dimensions_all_combinations'
+STYLES = ['Anger', 'Relax', 'Sad', 'Enjoy', 'OR']
+DIMENSIONS = itertools.combinations(STYLES, 2)
 
 df = load_data('all_styles_100')
 

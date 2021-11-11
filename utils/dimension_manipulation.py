@@ -18,6 +18,8 @@ def get_coordinates(latent_vectors, dimension_vectors, output_dimensions):
     Returns a numpy array with the scalar projection of each latent vector on to each dimension vectors.
     If the output_dimensions is larger than the amount of latent vectors, PCA will be used for the remaining dimensions.
     """
+    if dimension_vectors.ndim == 1:
+        dimension_vectors = np.expand_dims(dimension_vectors, axis=0)
     scalar_projections = np.array(
         [[scalar_projection(x, y) for x in latent_vectors] for y in dimension_vectors]).transpose()
     if output_dimensions <= dimension_vectors.shape[0]:
