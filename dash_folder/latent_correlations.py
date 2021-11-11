@@ -6,7 +6,7 @@ from dash_folder.template import assets_folder, colors
 from utils.data_handling import load_data
 
 
-app = dash.Dash(__name__, assets_folder=assets_folder)
+app = dash.Dash(__name__, assets_folder=assets_folder, title='Latent Correlations')
 RUN_PORT = 8052
 
 data_df = load_data('all_styles_100')

@@ -8,7 +8,7 @@ from utils.dimension_manipulation import get_coordinates
 from sklearn.metrics import roc_curve, roc_auc_score
 import numpy as np
 
-app = dash.Dash(__name__, assets_folder=assets_folder)
+app = dash.Dash(__name__, assets_folder=assets_folder, title='ROC')
 RUN_PORT = 8053
 
 data_df = load_data('all_styles_100')

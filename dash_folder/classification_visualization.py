@@ -11,7 +11,7 @@ from utils.metric_evaluation import evaluate_metric_quadratic
 from utils.dimension_manipulation import get_coordinates
 import pandas as pd
 
-app = dash.Dash(__name__, assets_folder=assets_folder)
+app = dash.Dash(__name__, assets_folder=assets_folder, title='Classification')
 RUN_PORT = 8050
 
 dimensions = 3

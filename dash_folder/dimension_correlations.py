@@ -7,7 +7,7 @@ from dash_folder.template import assets_folder, colors
 from utils.data_handling import load_data
 from utils.dimension_manipulation import get_coordinates
 
-app = dash.Dash(__name__, assets_folder=assets_folder)
+app = dash.Dash(__name__, assets_folder=assets_folder, title='Dimension Correlations')
 RUN_PORT = 8051
 
 data_df = load_data('all_styles_100')
