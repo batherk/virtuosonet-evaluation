@@ -16,10 +16,11 @@ RUN_PORT = 8050
 
 dimensions = 3
 SLIDER_STEPS = 50
+PCA_DIMENSIONS = 2
 
 
 data_df = load_data('all_styles_100')
-dimension_df = load_data('disentangled_dimensions')
+dimension_df = load_data('disentangled_dimensions_all_combinations')
 dimension_vectors = dimension_df.loc[:, 'l0':].to_numpy()
 
 
@@ -35,7 +36,7 @@ axis_1_options = [
 
 other_axis_options = axis_1_options + [
     {'label': f"PCA {i + 1}", 'value': f"pca{i + 1}"} for i in
-    range(dimensions - len(dimension_df.index))
+    range(PCA_DIMENSIONS)
 ]
 
 
@@ -146,7 +147,7 @@ app.layout = html.Div(
                     dcc.Dropdown(
                         id='axis-3',
                         options=other_axis_options,
-                        value='pca1',
+                        value='dim3',
                         clearable=False,
                         style={
                             'width': '100%',
@@ -244,7 +245,7 @@ def change_classification_axis(axis_1):
     mask = (data_df['style_name'] == negative_name) | (data_df['style_name'] == positive_name)
 
     latent_vectors = data_df[mask].loc[:, 'l0':].to_numpy()
-    coordinates = get_coordinates(latent_vectors, dimension_vectors, dimensions)
+    coordinates = get_coordinates(latent_vectors, dimension_vectors)
     values = coordinates.transpose()[dim]
     intercept = dimension_df.iloc[dim]['direction_intercept'][0]
     marks = {
@@ -283,28 +284,27 @@ def change_plane_x(slider_value, classification_type, data_type, axis_1, axis_2,
     intercept = dimension_df.iloc[dim]['direction_intercept'][0]
 
     latent_vectors = data_df[mask].loc[:, 'l0':].to_numpy()
-    coordinates = get_coordinates(latent_vectors, dimension_vectors, dimensions)
+    coordinates = get_coordinates(latent_vectors, dimension_vectors, len(dimension_vectors) + PCA_DIMENSIONS)
 
     style_name = data_df[mask]['style_name'].reset_index(drop=True)
     labels = style_name.apply(lambda x: 1 if x == positive_name else 0).rename('label')
 
-    all = pd.concat([labels, pd.DataFrame(coordinates, columns=['x', 'y', 'z'])], axis=1)
+    all = pd.concat([labels, pd.DataFrame(coordinates, columns=[dic['value'] for dic in other_axis_options])], axis=1)
 
     columns = []
     column_names = ['x', 'y', 'z']
+    sample_df = pd.DataFrame(labels)
     axis_names = []
 
-    for axis in [axis_1, axis_2, axis_3]:
+    for i, axis in enumerate([axis_1, axis_2, axis_3]):
+        dim = int(axis[-1]) - 1
         if 'pca' in axis:
-            columns.append('z')
-            axis_names.append('PCA 1')
+            axis_names.append(f"PCA {dim + 1}")
         else:
-            dim = int(axis[-1]) - 1
-            columns.append(column_names[dim])
             axis_names.append(get_axis_name(dimension_df, dim))
-    sample_df = pd.DataFrame(labels)
-    for i, col in enumerate(columns):
-        sample_df[column_names[i]] = all[col]
+        sample_df[column_names[i]] = all[axis]
+
+
 
     layout.update({'scene': {
         'xaxis_title': axis_names[0],

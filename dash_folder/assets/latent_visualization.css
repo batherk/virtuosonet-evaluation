@@ -5,7 +5,7 @@
     border-radius: 5px;
     padding: 20px;
 }
-
+#axis-1 div.Select-menu-outer,
 #axis-2 div.Select-menu-outer,
 #axis-3 div.Select-menu-outer{
     position: absolute;
