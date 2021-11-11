@@ -3,6 +3,8 @@ import os
 import plotly.graph_objs as go
 import plotly.io as pio
 
+DARK_MODE = True
+
 
 class SolutionSeekerColors:
     black = 'rgb(0,0,2)'
@@ -23,16 +25,26 @@ class SolutionSeekerColors:
 
 colors = SolutionSeekerColors()
 layout = go.layout.Template()
-layout.layout.colorway = [colors.yellow,
-                          colors.turquoise,
-                          colors.blue,
-                          colors.byellow,
-                          colors.bturquoise]
-layout.layout.plot_bgcolor = colors.grey1
-layout.layout.paper_bgcolor = colors.grey1
-layout.layout.font = {'color': colors.white}
-layout.layout.xaxis = {'gridcolor': colors.grey2}
-layout.layout.yaxis = {'gridcolor': colors.grey2}
+
+if DARK_MODE:
+    layout.layout.plot_bgcolor = colors.grey1
+    layout.layout.paper_bgcolor = colors.grey1
+    layout.layout.font = {'color': colors.white}
+    layout.layout.xaxis = {'gridcolor': colors.grey2}
+    layout.layout.yaxis = {'gridcolor': colors.grey2}
+    layout.layout.colorway = [colors.yellow,
+                              colors.turquoise,
+                              colors.blue,
+                              colors.byellow,
+                              colors.bturquoise]
+else:
+    layout.layout.colorway = [colors.yellow,
+                              colors.turquoise,
+                              colors.blue,
+                              colors.pink,
+                              colors.purple,
+                              colors.blue_dark
+                              ]
 assets_folder = os.path.dirname(os.path.realpath(__file__)) + "/assets"
 pio.templates['seeker'] = layout
 pio.templates.default = 'seeker'
