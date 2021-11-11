@@ -12,7 +12,7 @@ def vector_projection(x,y):
 
 # Visualization
 
-def get_coordinates(latent_vectors, dimension_vectors, output_dimensions):
+def get_coordinates(latent_vectors, dimension_vectors, output_dimensions=None):
     """
     Creating understandable coordinates for visualizing latent vectors.
     Returns a numpy array with the scalar projection of each latent vector on to each dimension vectors.
@@ -22,7 +22,7 @@ def get_coordinates(latent_vectors, dimension_vectors, output_dimensions):
         dimension_vectors = np.expand_dims(dimension_vectors, axis=0)
     scalar_projections = np.array(
         [[scalar_projection(x, y) for x in latent_vectors] for y in dimension_vectors]).transpose()
-    if output_dimensions <= dimension_vectors.shape[0]:
+    if not output_dimensions or output_dimensions <= dimension_vectors.shape[0]:
         return scalar_projections[:, :output_dimensions]
     else:
         remaining_dimensions = output_dimensions - dimension_vectors.shape[0]

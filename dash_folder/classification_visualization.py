@@ -1,4 +1,3 @@
-# file app.py
 import dash
 from dash import dcc
 from dash import html
@@ -13,6 +12,7 @@ from utils.dimension_manipulation import get_coordinates
 import pandas as pd
 
 app = dash.Dash(__name__, assets_folder=assets_folder)
+RUN_PORT = 8050
 
 dimensions = 3
 SLIDER_STEPS = 50
@@ -397,4 +397,4 @@ def change_plane_x(slider_value, classification_type, data_type, axis_1, axis_2,
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, port=RUN_PORT)

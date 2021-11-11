@@ -9,6 +9,7 @@ from sklearn.metrics import roc_curve, roc_auc_score
 import numpy as np
 
 app = dash.Dash(__name__, assets_folder=assets_folder)
+RUN_PORT = 8053
 
 data_df = load_data('all_styles_100')
 dimension_df = load_data('disentangled_dimensions_all_combinations')
@@ -69,4 +70,4 @@ app.layout = html.Div(children=[
 })
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, port=RUN_PORT)
