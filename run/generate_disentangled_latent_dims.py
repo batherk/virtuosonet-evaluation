@@ -6,14 +6,24 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import itertools
 
-SAVE_DATA = False
+SAVE_DATA = True
 PLOT_ROC = True
-SAVE_NAME = 'disentangled_dimensions_all_combinations'
+MASK = True
+MASK_NAME = 'composer_and_piece'
+SAVE_NAME = f"disentangled_dimensions"
+
+if MASK :
+    SAVE_NAME += f"_mask_{MASK_NAME}"
+
 
 
 df = load_data('styles')
 
 styles = df['style_name'].unique()
+mask = (df['composer'] == 'Bach') & (df['piece'] == "french-suite_bwv812_no1_allemande")
+
+if MASK:
+    df = df[mask]
 
 dimensions = itertools.combinations(styles, 2)
 
