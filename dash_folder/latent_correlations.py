@@ -9,7 +9,7 @@ from utils.data_handling import load_data
 app = dash.Dash(__name__, assets_folder=assets_folder, title='Latent Correlations')
 RUN_PORT = 8052
 
-data_df = load_data('all_styles_100')
+data_df = load_data('styles')
 dimension_df = load_data('disentangled_dimensions_all_combinations')
 dimension_vectors = dimension_df.loc[:, 'l0':].to_numpy()
 latent_vectors = data_df.loc[:, 'l0':].to_numpy()

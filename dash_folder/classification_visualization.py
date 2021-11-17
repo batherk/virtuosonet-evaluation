@@ -19,7 +19,7 @@ SLIDER_STEPS = 50
 PCA_DIMENSIONS = 2
 
 
-data_df = load_data('all_styles_100')
+data_df = load_data('styles')
 dimension_df = load_data('disentangled_dimensions_all_combinations')
 dimension_vectors = dimension_df.loc[:, 'l0':].to_numpy()
 

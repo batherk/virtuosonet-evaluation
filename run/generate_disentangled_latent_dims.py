@@ -9,14 +9,17 @@ import itertools
 SAVE_DATA = False
 PLOT_ROC = True
 SAVE_NAME = 'disentangled_dimensions_all_combinations'
-STYLES = ['Anger', 'Relax', 'Sad', 'Enjoy', 'OR']
-DIMENSIONS = itertools.combinations(STYLES, 2)
 
-df = load_data('all_styles_100')
+
+df = load_data('styles')
+
+styles = df['style_name'].unique()
+
+dimensions = itertools.combinations(styles, 2)
 
 disentangled_dimensions = []
 
-for dimension_start, dimension_end in DIMENSIONS:
+for dimension_start, dimension_end in dimensions:
     start_samples = df[df['style_name'] == dimension_start].loc[:,'l0':].to_numpy()
     end_samples = df[df['style_name'] == dimension_end].loc[:,'l0':].to_numpy()
 
