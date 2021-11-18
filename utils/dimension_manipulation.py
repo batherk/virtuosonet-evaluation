@@ -31,6 +31,11 @@ def get_coordinates(latent_vectors, dimension_vectors, output_dimensions=None):
         return np.append(scalar_projections, pca_coords, axis=1)
 
 
+def get_pca_coords(data, dimensions):
+    pca = PCA(n_components=dimensions)
+    return pca.fit_transform(X=data)
+
+
 # Matrix
 
 def get_dimensionality_reduction_matrix(vector):
