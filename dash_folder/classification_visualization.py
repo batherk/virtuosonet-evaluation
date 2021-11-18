@@ -10,6 +10,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score
 from utils.metric_evaluation import evaluate_metric_quadratic
 from utils.dimension_manipulation import get_coordinates
 import pandas as pd
+from utils.dash import get_layout, get_trigger, scatter3d
 
 app = dash.Dash(__name__, assets_folder=assets_folder, title='Classification')
 RUN_PORT = 8050
@@ -40,38 +41,6 @@ other_axis_options = axis_1_options + [
 ]
 
 
-def scatter(x, y, z, name, color):
-    return go.Scatter3d(
-        x=x,
-        y=y,
-        z=z,
-        name=name,
-        mode='markers',
-        marker=dict(
-            size=5,
-            color=color,
-            opacity=1
-        )
-    )
-
-
-graph_layout_default_settings = {
-    'scene': {
-        'camera': {
-            'up': {'x': 0, 'y': 0, 'z': 1},
-            'center': {'x': -0.07214567600111127, 'y': -0.08497201560137722, 'z': -0.27943759806176177},
-            'eye': {'x': -0.5135394958253185, 'y': -1.9748036183855688, 'z': 0.7264046470993168},
-            'projection': {'type': 'perspective'},
-        },
-    },
-    'legend': {
-        'xanchor': 'right'
-    },
-    'margin': {
-        'autoexpand': False
-    },
-}
-
 app.layout = html.Div(
     children=[
         html.Div([
@@ -90,19 +59,6 @@ app.layout = html.Div(
                     }
                 ),
                 html.Div([
-                    dcc.Dropdown(
-                        id='data-type',
-                        options=[
-                            {'label': 'All', 'value': 'all'},
-                            {'label': 'Training', 'value': 'train'},
-                            {'label': 'Test', 'value': 'test'}
-                        ],
-                        value='all',
-                        clearable=False,
-                        style={
-                            'width': '100%',
-                        }
-                    ),
                     dcc.Dropdown(
                         id='classification-type',
                         options=[
@@ -213,24 +169,6 @@ app.layout = html.Div(
 )
 
 
-def get_layout(relayout_data, prev_graph):
-    layout = go.Layout()
-    if prev_graph:
-        layout.update(prev_graph['layout'])
-        if relayout_data and 'scene.camera' in relayout_data:
-            layout.scene.camera.update(relayout_data['scene.camera'])
-    else:
-        layout.update(graph_layout_default_settings)
-    return layout
-
-
-def get_trigger():
-    ctx = dash.callback_context
-    if ctx.triggered:
-        return ctx.triggered[0]["prop_id"].split(".")[0]
-    else:
-        return None
-
 
 @app.callback(Output('plane', 'marks'),
               Output('plane', 'min'),
@@ -266,16 +204,15 @@ def change_classification_axis(axis_1):
               Output('recall', 'style'),
               Input('plane', 'value'),
               Input('classification-type', 'value'),
-              Input('data-type', 'value'),
               Input('axis-1', 'value'),
               Input('axis-2', 'value'),
               Input('axis-3', 'value'),
               State('graph', 'figure'),
               State('graph', 'relayoutData'))
-def change_plane_x(slider_value, classification_type, data_type, axis_1, axis_2, axis_3, prev_graph, relayout_data):
+def change_plane_x(slider_value, classification_type, axis_1, axis_2, axis_3, prev_figure, relayout_data):
     trigger = get_trigger()
 
-    layout = get_layout(relayout_data, prev_graph)
+    layout = get_layout(relayout_data, prev_figure)
 
     dim = int(axis_1[-1]) - 1
     negative_name = dimension_df.iloc[dim]['negative_name']
@@ -312,14 +249,9 @@ def change_plane_x(slider_value, classification_type, data_type, axis_1, axis_2,
         'zaxis_title': axis_names[2],
     }})
 
-    if data_type == 'train':
-        sample_df = sample_df[sample_df.index < 160]
-    elif data_type == 'test':
-        sample_df = sample_df[sample_df.index >= 160]
-
     predicted = pd.Series(np.where(sample_df['x'] < slider_value, 0, 1), index=sample_df.index)
 
-    if not prev_graph:
+    if not prev_figure:
         yy, zz = np.meshgrid(np.arange(sample_df['y'].min(), sample_df['y'].max(),
                                        (sample_df['x'].max() - sample_df['x'].min()) / SLIDER_STEPS),
                              np.array([sample_df['z'].min(), sample_df['z'].max()]))
@@ -351,7 +283,7 @@ def change_plane_x(slider_value, classification_type, data_type, axis_1, axis_2,
             showlegend=True
         )
     else:
-        plane = prev_graph['data'][-1]
+        plane = prev_figure['data'][-1]
 
     if classification_type == 'tfnp':
         correct = sample_df['label'] == pd.Series(predicted)
@@ -363,23 +295,23 @@ def change_plane_x(slider_value, classification_type, data_type, axis_1, axis_2,
         c = [tp, tn, fp, fn]
         cc = [colors.turquoise, colors.blue, colors.pink, colors.purple]
         cn = ['True Positive', 'True Negative', 'False Positive', 'False Negative']
-        data = [scatter(c[i]['x'], c[i]['y'], c[i]['z'], cn[i], cc[i]) for i in range(len(c))]
+        data = [scatter3d(c[i]['x'], c[i]['y'], c[i]['z'], cn[i], cc[i]) for i in range(len(c))]
         data.append(plane)
 
     elif classification_type == 'cor':
         correct_mask = sample_df['label'] == pd.Series(predicted)
         cs = sample_df[correct_mask]
         ws = sample_df[correct_mask == False]
-        correct_scatter = scatter(cs['x'], cs['y'], cs['z'], 'Correct classification', colors.turquoise)
-        wrong_scatter = scatter(ws['x'], ws['y'], ws['z'], 'Wrong classification', colors.pink)
+        correct_scatter = scatter3d(cs['x'], cs['y'], cs['z'], 'Correct classification', colors.turquoise)
+        wrong_scatter = scatter3d(ws['x'], ws['y'], ws['z'], 'Wrong classification', colors.pink)
         data = [correct_scatter, wrong_scatter, plane]
 
     else:
         class_mask = sample_df['label'] == True
         tr = sample_df[class_mask]
         fa = sample_df[class_mask == False]
-        true_scatter = scatter(tr['x'], tr['y'], tr['z'], positive_name, colors.blue)
-        false_scatter = scatter(fa['x'], fa['y'], fa['z'], negative_name, colors.yellow)
+        true_scatter = scatter3d(tr['x'], tr['y'], tr['z'], positive_name, colors.blue)
+        false_scatter = scatter3d(fa['x'], fa['y'], fa['z'], negative_name, colors.yellow)
         data = [true_scatter, false_scatter, plane]
 
     accuracy = accuracy_score(sample_df['label'], predicted)
