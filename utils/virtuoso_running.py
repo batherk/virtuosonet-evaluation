@@ -24,7 +24,7 @@ def load_model_and_args():
     else:
         device = args.device
 
-    if args.initialize_model:
+    if args.yml_path is not None:
         config = virtuoso_utils.read_model_setting(args.yml_path)
         net_param = config.nn_params
     else:
@@ -51,6 +51,8 @@ def load_model_and_args():
     model.residual_info_selector = getattr(res, net_param.residual_info_selector_name)()
     model.performance_decoder = getattr(dec, net_param.performance_decoder_name)(net_param)
     model.network_params = net_param
+    if not args.initialize_model:
+        model.load_state_dict(torch.load(str(args.checkpoint), map_location='cpu')['state_dict'])
     model = model.to(device)
     return model, args
 
