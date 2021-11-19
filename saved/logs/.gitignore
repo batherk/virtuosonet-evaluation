@@ -1,0 +1,7 @@
+# Local test results should no tbe pushed to git
+
+# Everything should be disregarded...
+*
+
+# ...except the .gitignore file
+!.gitignore
