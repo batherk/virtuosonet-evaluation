@@ -24,7 +24,7 @@ def load_model_and_args():
     else:
         device = args.device
 
-    if args.yml_path is not None:
+    if args.initialize_model:
         config = virtuoso_utils.read_model_setting(args.yml_path)
         net_param = config.nn_params
     else:
@@ -32,8 +32,8 @@ def load_model_and_args():
         args.yml_path = list(Path(args.checkpoint).parent.glob('*.yml'))[0]
         config = virtuoso_utils.read_model_setting(args.yml_path)
     args.graph_keys = net_param.graph_keys
-    args.meas_note = net_param.meas_note
-    criterion = virtuoso_utils.make_criterion_func(config.train_params.loss_type, device)
+    # args.meas_note = net_param.meas_note
+    args.criterion = virtuoso_utils.make_criterion_func(config.train_params.loss_type, device)
 
     if args.world_size > 1:
         if device != "cuda" and args.rank == 0:
@@ -57,10 +57,4 @@ def load_model_and_args():
 def autoencode(model, args):
     return inference(args, model, args.device)
 
-def encode_style(model, args):
-    model = virtuoso_utils.load_weight(model, args.checkpoint)
-    model.eval()
-    score, input, edges, note_locations = get_input_from_xml(args.xml_path, args.composer, args.qpm_primo,
-                                                             model.stats['input_keys'], model.stats['graph_keys'],
-                                                             model.stats['stats'], args.device)
-    return model.encode_style(input, None, edges, note_locations, num_samples=10)
+

@@ -8,7 +8,7 @@ import itertools
 
 SAVE_DATA = True
 PLOT_ROC = True
-MASK = True
+MASK = False
 MASK_NAME = 'composer_and_piece'
 SAVE_NAME = f"disentangled_dimensions"
 

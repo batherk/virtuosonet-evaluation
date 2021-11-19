@@ -11,7 +11,7 @@ app = dash.Dash(__name__, assets_folder=assets_folder, title='Dimension Correlat
 RUN_PORT = 8051
 
 data_df = load_data('styles')
-dimension_df = load_data('disentangled_dimensions_all_combinations')
+dimension_df = load_data('disentangled_dimensions')
 dimension_vectors = dimension_df.loc[:, 'l0':].to_numpy()
 latent_vectors = data_df.loc[:, 'l0':].to_numpy()
 
