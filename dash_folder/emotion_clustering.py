@@ -16,6 +16,8 @@ data_df = load_data('styles')
 base_option = {'label': 'All', 'value': 'All'}
 composer_options = [base_option]
 composer_options += [{'label': composer, 'value': composer} for composer in data_df['composer'].unique()]
+average_options = [{'label': '10 per Performance', 'value': 'All'},
+                   {'label': 'Average per Performance', 'value': 'Average'}]
 
 app.layout = html.Div([
     html.Div([
@@ -40,7 +42,14 @@ app.layout = html.Div([
                 value=base_option['value'],
                 clearable=False,
                 style={'width': '100%'},
-            )],
+            ), dcc.Dropdown(
+                id='average',
+                options=average_options,
+                value=average_options[0]['value'],
+                clearable=False,
+                style={'width': '100%'},
+            ), ],
+
             style={
                 'display': 'flex',
                 'flex-direction': 'column',
@@ -60,7 +69,7 @@ app.layout = html.Div([
     ],
         style={
             'display': 'flex',
-            'justify-content':'space-evenly',
+            'justify-content': 'space-evenly',
         }
     ),
 
@@ -79,10 +88,11 @@ app.layout = html.Div([
               Output('piece', 'options'),
               Input('composer', 'value'),
               Input('piece', 'value'),
+              Input('average', 'value'),
               State('piece', 'options'),
               State('clustering', 'figure'),
               State('clustering', 'relayoutData'))
-def change_piece_options(composer, piece, piece_options, prev_figure, relayout_data):
+def change_piece_options(composer, piece, average, piece_options, prev_figure, relayout_data):
     trigger = get_trigger()
 
     if trigger == 'composer':
@@ -95,12 +105,14 @@ def change_piece_options(composer, piece, piece_options, prev_figure, relayout_d
             value = base_option['value']
             piece_options, piece = options, value
 
-    filtered = data_df
+    filtered = data_df.copy()
 
     if composer != base_option['value']:
         filtered = filtered[filtered['composer'] == composer]
     if piece != base_option['value']:
         filtered = filtered[filtered['piece'] == piece]
+    if average == 'Average':
+        filtered = filtered.groupby(['piece', 'style_name']).mean().reset_index()
 
     pca_coords = get_pca_coords(filtered.loc[:, 'l0':].to_numpy(), DIMENSIONS).transpose()
 
