@@ -3,7 +3,7 @@ import pandas as pd
 from dash import dcc
 from dash import html
 import plotly.graph_objects as go
-from dash_folder.template import assets_folder, colors
+from dash_folder.template import assets_folder, colors, DARK_MODE
 from utils.data_handling import load_data
 from utils.dimension_manipulation import get_coordinates
 
@@ -42,7 +42,11 @@ app.layout = html.Div(children=[
                 z=corr.values,
                 x=corr.index.values,
                 y=corr.columns.values,
-                colorscale=[colors.yellow,colors.grey1, colors.turquoise],
+                colorscale=[colors.yellow,colors.grey1, colors.blue] if DARK_MODE else [colors.yellow,colors.white, colors.blue],
+                zauto=False,
+                zmax=1,
+                zmid=0,
+                zmin=-1,
             ),
         ),
         style=dict(
