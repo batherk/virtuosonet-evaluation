@@ -13,8 +13,8 @@ checkpoint_name = "last"
 initialize_model = False
 
 # Score
-score_path = "bps_5_1/musicxml_cleaned.musicxml"
-composer = "Beethoven"
+score_path = "emotionNet/Bach_Prelude_1/musicxml_cleaned.musicxml"
+composer = "Bach"
 
 # Div
 lr = 1e-4

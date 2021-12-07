@@ -10,7 +10,7 @@ from virtuosoNet.virtuoso import encoder_score as encs
 from virtuosoNet.virtuoso import encoder_perf as encp
 from virtuosoNet.virtuoso import decoder as dec
 from virtuosoNet.virtuoso import residual_selector as res
-from virtuosoNet.virtuoso.inference import inference, get_input_from_xml
+from virtuosoNet.virtuoso.inference import save_model_output_as_midi, get_input_from_xml
 import utils.virtuoso_settings as args
 
 def load_model_and_args():
@@ -56,7 +56,31 @@ def load_model_and_args():
     model = model.to(device)
     return model, args
 
-def autoencode(model, args):
-    return inference(args, model, args.device)
+def autoencode_score_to_midi(model, args, initial_z=None):
+    model = virtuoso_utils.load_weight(model, args.checkpoint)
+    model.eval()
+
+    if initial_z == None:
+        initial_z = 'zero'
+    # load score
+    score, input, edges, note_locations = get_input_from_xml(args.xml_path, args.composer, args.qpm_primo,
+                                                             model.stats['input_keys'], model.stats['graph_keys'],
+                                                             model.stats['stats'], args.device)
+    with torch.no_grad():
+        outputs, perform_mu, perform_var, total_out_list = model(input, None, edges, note_locations, initial_z=initial_z)
+        if args.save_cluster:
+            attention_weights = model.score_encoder.get_attention_weights(input, edges, note_locations)
+        else:
+            attention_weights = None
+        # outputs, perform_mu, perform_var, total_out_list = model(input, None, edges, note_locations, initial_z='rand')
+    Path(args.output_path).mkdir(exist_ok=True)
+    save_path = args.output_path / f"{args.xml_path.parent.stem}_{args.xml_path.stem}_by_{args.model_code}.mid"
+    save_model_output_as_midi(outputs, save_path, score, model.stats['output_keys'], model.stats['stats'],
+                              note_locations,
+                              args.velocity_multiplier, args.multi_instruments, args.tempo_clock, args.boolPedal,
+                              args.disklavier,
+                              clock_interval_in_16th=args.clock_interval_in_16th, save_csv=args.save_csv,
+                              save_cluster=args.save_cluster,
+                              attention_weights=attention_weights, mod_midi_path=args.mod_midi_path)
 
 

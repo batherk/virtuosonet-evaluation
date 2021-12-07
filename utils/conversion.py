@@ -5,4 +5,4 @@ def convert_model_z_to_latent(z):
 
 
 def convert_latent_to_model_z(latent):
-    return [torch.tensor([[latent]])]
+    return torch.tensor(latent)
